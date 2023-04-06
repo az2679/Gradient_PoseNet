@@ -14,18 +14,23 @@ let leftX, leftY, rightX, rightY;
 let angleRadL, angleDegL, negDegL, angleDeg2L;
 let disL, huL, satL, brightL, colrL, minDim;
 
-let innerRad, outerRad, radPara;
+let innerRad, outerRad, param;
 
 function setup() {
   video = createCapture(VIDEO, videoReady);
-  video.hide();
-  createCanvas(640, 480);
+  video.size(200, 200)
+  // video.hide();
+  createCanvas(640, 680);
   colorMode(HSB)
 }
 
 function draw() {
   // image(video, 0, 0, 640, 480);
 
+  // const flippedVideo = ml5.flipImage(video);
+  // image(flippedVideo, (width/2)-100, (height/2)-100, 200, 200);
+    //works to give a preview but error
+  
 }
 
 
@@ -48,7 +53,9 @@ function gotResults(results) {
     // console.log(results[0].pose.leftWrist.y, leftColr, results[0].pose.rightWrist.y, rightColr)
     if (results[0] && results[0].pose) {
 
-      background(hu, dark, light);
+      // background(hu, dark, light);
+      background(huL, satL, brightL)
+
       // leftColr = map(results[0].pose.leftWrist.y, 0, 640, 0, 255)
       // rightColr = map(results[0].pose.rightWrist.y, 0, 640, 0, 255)
 
@@ -60,47 +67,47 @@ function gotResults(results) {
       // fill(colr1)
       // rect (300, 100, 100)
 
-      // leftX = results[0].pose.leftWrist.x
-      // leftY = results[0].pose.leftWrist.y
+      leftX = results[0].pose.leftWrist.x
+      leftY = results[0].pose.leftWrist.y
 
       v0 = createVector(width/2, height/2);
       v1 = createVector(width/2, 0);
-      v2 = createVector(mouseX - width/2, mouseY - height/2);
-      // vL = createVector(leftX - width/2, leftY - height/2);
+      // v2 = createVector(mouseX - width/2, mouseY - height/2);
+      vL = createVector(leftX - width/2, leftY - height/2);
 
-      angleBetween = v1.angleBetween(v2);
-      angleDeg = degrees(angleBetween)
-      // angleRadL = v1.angleBetween(vL);
-      // angleDegL = degrees(angleRadL)
+      // angleBetween = v1.angleBetween(v2);
+      // angleDeg = degrees(angleBetween)
+      angleRadL = v1.angleBetween(vL);
+      angleDegL = degrees(angleRadL)
       
     //converting neg degrees to 180-360
-      if(angleDeg < 0){
-        negDeg = abs(angleDeg)
-      }
-      angleDeg2 = map(negDeg, 0, 180, 180, 0) + 180
-      
-      // if(angleDegL < 0){
-      //   negDegL = abs(angleDegL)
+      // if(angleDeg < 0){
+      //   negDeg = abs(angleDeg)
       // }
-      // angleDeg2L = map(negDegL, 0, 180, 180, 0) + 180
+      // angleDeg2 = map(negDeg, 0, 180, 180, 0) + 180
+      
+      if(angleDegL < 0){
+        negDegL = abs(angleDegL)
+      }
+      angleDeg2L = map(negDegL, 0, 180, 180, 0) + 180
 
         
       //degrees > hue value
-      if (angleDeg > 0){
-        hu = angleDeg
-      } else if (angleDeg < 0){
-        hu = angleDeg2
-      }
-
-      // if (angleDegL > 0){
-      //   huL = angleDegL
-      // } else if (angleDegL < 0){
-      //   huL = angleDeg2L
+      // if (angleDeg > 0){
+      //   hu = angleDeg
+      // } else if (angleDeg < 0){
+      //   hu = angleDeg2
       // }
+
+      if (angleDegL > 0){
+        huL = angleDegL
+      } else if (angleDegL < 0){
+        huL = angleDeg2L
+      }
         
       //full saturation parameter of 10 (between 95 and 105 dist)
-      dis = dist(width/2, height/2, mouseX, mouseY)
-      // disL = dist(width/2, height/2, leftX, leftY)
+      // dis = dist(width/2, height/2, mouseX, mouseY)
+      disL = dist(width/2, height/2, leftX, leftY)
 
       minDim=min(width, height)
       // fullSatMark = width/4
@@ -112,7 +119,7 @@ function gotResults(results) {
 
       innerRad = (minDim/2)/2
       outerRad = (minDim/2)
-      radPara = 5
+      param = 5
 
       noFill()
       stroke(0)
@@ -136,24 +143,40 @@ function gotResults(results) {
       // }
 
       if (dis < innerRad){
-        dark = map(dis, 0, innerRad-radPara, 0, 100)
-        if (dis>= (innerRad-radPara)){
+        dark = map(dis, 0, innerRad-param, 0, 100)
+        if (dis>= (innerRad-param)){
             dark = 100
         }
         light = 100
       } else if (dis > innerRad){
-        light = map(dis, innerRad+radPara, outerRad, 100, 0)
-        if (dis <= innerRad+radPara){
+        light = map(dis, innerRad+param, outerRad, 100, 0+param*2)
+        if (dis <= innerRad+param){
           light = 100
         }
         dark = 100
       }
 
+
+      if (disL < innerRad){
+        satL = map(disL, 0, innerRad-param, 0, 100)
+        if (disL>= (innerRad-param)){
+          satL = 100
+        }
+        brightL = 100
+      } else if (disL > innerRad){
+        brightL = map(disL, innerRad+param, outerRad, 100, 0+param*2)
+        if (disL <= innerRad+param){
+          brightL = 100
+        }
+        satL = 100
+      }
+
+      //fixing console log parameters from mapping
       if (light >= 100){
         light=100
       }
-      if (light <= 0){
-        light=0
+      if (light <= param*2){
+        light=param*2
       }
       if (dark >= 100){
         dark=100
@@ -162,24 +185,7 @@ function gotResults(results) {
         dark = 0
       }
 
-      console.log(dis, hu, dark, light)
-
-      // if (disL < fullSatMark){
-      //   satL = map(disL, 0, fullSatMark-fullSatPara, 0, 100)
-      //   if (disL>= (fullSatMark-fullSatPara)){
-      //     satL = 100
-      //   }
-      //   brightL = 100
-      // } else if (disL > fullSatMark){
-      //   brightL = map(disL, fullSatMark+fullSatPara, markEdge, 100, 0)
-      //   if (disL <= fullSatMark+fullSatPara){
-      //     brightL = 100
-      //   }
-      //   satL = 100
-      // }
-        
-        
-        
+      // console.log(dis, hu, dark, light)        
       // console.log(leftX, leftY, disL, huL, satL, brightL)
         
         
