@@ -20,6 +20,8 @@ let disR, colrR, huR, satR, brightR;
 
 let minDim, innerRad, outerRad, param;
 
+let sY, eY, spd, sYSpd, eYSpd;
+
 function setup() {
   video = createCapture(VIDEO, videoReady);
   video.size(640, 680)
@@ -34,6 +36,11 @@ function setup() {
   huR = 255
   satR = 255
   brightR = 255
+
+  sY = width/2
+  eY = width/2
+  sYSpd = 0.1
+  eYSpd = 0.3
 }
 
 function draw() {
@@ -73,35 +80,36 @@ function gotResults(results) {
     // console.log(results);
     // console.log(results[0].pose.leftWrist.y, leftColr, results[0].pose.rightWrist.y, rightColr)
     if (results[0] && results[0].pose) {
-      // background(huL, satL, brightL)
 
       colrL = color(huL, satL, brightL)
       colrR = color(huR, satR, brightR)
 
-      // fill(colrL)
-      // rect(100, 400, 100)
-      // fill(colrR)
-      // rect (300, 400, 100)
-
-      // noFill()
-      // stroke(0)
-      // ellipse(width/2, height/2, outerRad*2)
-      // ellipse(width/2, height/2, innerRad*2)
-
-      linearGradient(
-        0, width/2,
-        width, width/2,
-        color(huL, satL, brightL),
-        color(huR, satR, brightR)
-      );
-      rect(0,0,width,height)
-
-
-      // LEFT AND RIGHT WRIST POINTS
+     // LEFT AND RIGHT WRIST POINTS
       leftX = results[0].pose.leftWrist.x
       leftY = results[0].pose.leftWrist.y
       rightX = results[0].pose.rightWrist.x
       rightY = results[0].pose.rightWrist.y
+
+      wristDis = dist(leftX, leftY, rightX, rightY)
+
+      spd = map(wristDis, 0, width, 0,50)
+      if (sY >= width/4 && eY <= (width/4)*3){
+        sYSpd = bounce(sY, ((width/4)*3), (width/4)+10, sYSpd)
+        eYSpd = bounce(eY, ((width/4)*3)-10, (width/4), eYSpd)
+         
+        sY += (sYSpd * spd); 
+        eY += (eYSpd * spd);
+      } 
+
+      console.log(spd, sY, width/4, eY, (width/4)*3, sYSpd, eYSpd)
+
+      linearGradient(
+        0, sY,
+        width, eY,
+        color(huL, satL, brightL),
+        color(huR, satR, brightR)
+      );
+      rect(0,0,width,height)
 
       v0 = createVector(width/2, height/2);
       v1 = createVector(width/2, 0);
@@ -247,6 +255,12 @@ function gotResults(results) {
   }
 }
 
+function bounce(num, max, min, speed) {  
+  if(num > max || num < min) {
+    speed *= -1
+  }
+  return speed;
+}
 
 function linearGradient(sX, sY, eX, eY, sColr, eColr) {
   let gradient = drawingContext.createLinearGradient(sX, sY, eX, eY);
@@ -255,5 +269,6 @@ function linearGradient(sX, sY, eX, eY, sColr, eColr) {
 
   drawingContext.fillStyle = gradient;
 }
+
 
   
