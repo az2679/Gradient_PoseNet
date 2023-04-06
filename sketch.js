@@ -23,17 +23,30 @@ let minDim, innerRad, outerRad, param;
 function setup() {
   video = createCapture(VIDEO, videoReady);
   video.size(640, 680)
-  // video.hide();
+  video.hide();
   createCanvas(640, 680);
   colorMode(HSB)
   background(255)
+
+  huL = 255
+  satL = 255
+  brightL = 255
+  huR = 255
+  satR = 255
+  brightR = 255
 }
 
 function draw() {
 
     // const flippedVideo = ml5.flipImage(video);
     // image(flippedVideo, 0, 0, 640, 480);
-
+    // linearGradient(
+    //   0, minDim/2,
+    //   width, minDim/2,
+    //   color(huL, satL, brightL),
+    //   color(huR, satR, brightR)
+    // );
+    // rect(0,0,width, height)
 
 
   // image(flippedVideo, (width/2)-100, (height/2)-100, 200, 200);
@@ -65,10 +78,24 @@ function gotResults(results) {
       colrL = color(huL, satL, brightL)
       colrR = color(huR, satR, brightR)
 
-      fill(colrL)
-      rect(100, 400, 100)
-      fill(colrR)
-      rect (300, 400, 100)
+      // fill(colrL)
+      // rect(100, 400, 100)
+      // fill(colrR)
+      // rect (300, 400, 100)
+
+      // noFill()
+      // stroke(0)
+      // ellipse(width/2, height/2, outerRad*2)
+      // ellipse(width/2, height/2, innerRad*2)
+
+      linearGradient(
+        0, width/2,
+        width, width/2,
+        color(huL, satL, brightL),
+        color(huR, satR, brightR)
+      );
+      rect(0,0,width,height)
+
 
       // LEFT AND RIGHT WRIST POINTS
       leftX = results[0].pose.leftWrist.x
@@ -113,12 +140,6 @@ function gotResults(results) {
       innerRad = (minDim/2)/2
       outerRad = (minDim/2)
       param = 5
-
-      noFill()
-      stroke(0)
-      ellipse(width/2, height/2, outerRad*2)
-      ellipse(width/2, height/2, innerRad*2)
-      rect(0,0,width,height)
 
       if (disL < innerRad){
         satL = map(disL, 0, innerRad-param, 0, 100)
@@ -226,5 +247,13 @@ function gotResults(results) {
   }
 }
 
+
+function linearGradient(sX, sY, eX, eY, sColr, eColr) {
+  let gradient = drawingContext.createLinearGradient(sX, sY, eX, eY);
+  gradient.addColorStop(0, sColr);
+  gradient.addColorStop(1, eColr);
+
+  drawingContext.fillStyle = gradient;
+}
 
   
